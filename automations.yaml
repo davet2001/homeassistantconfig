@@ -1,0 +1,250 @@
+- id: '1561318563032'
+  alias: Dehumid subfloor (fan on)
+  trigger:
+  - entity_id: group.familyandfriends
+    for: 00:10:00
+    from: home
+    platform: state
+    to: not_home
+  - at: '9:00:00'
+    platform: time
+  - above: '60'
+    entity_id: sensor.subfloor_rh
+    platform: numeric_state
+  condition:
+  - condition: state
+    entity_id: group.familyandfriends
+    state: not_home
+  - after: 08:00
+    before: '20:00'
+    condition: time
+  - below: '50'
+    condition: numeric_state
+    entity_id: sensor.weather_humidity
+  action:
+  - alias: ''
+    data:
+      entity_id: fan.subfloor
+    service: homeassistant.turn_on
+  - data:
+      message: Fan was turned on
+    service: notify.ios_daves_iphone
+- id: '1561913600264'
+  alias: Dehumid subfloor (fan off)
+  trigger:
+  - entity_id: group.familyandfriends
+    from: not_home
+    platform: state
+    to: home
+  - at: '19:00:00'
+    platform: time
+  - below: '50'
+    entity_id: sensor.subfloor_rh
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      entity_id: fan.subfloor
+    service: homeassistant.turn_off
+- id: '1562190586196'
+  alias: Tilly has left the building
+  trigger:
+  - payload: OUT
+    platform: mqtt
+    topic: home/kitchen/catflap
+  condition:
+  - condition: state
+    entity_id: person.dave_2
+    state: home
+  - after: '20:30:00'
+    before: '22:30:00'
+    condition: time
+  action:
+  - data:
+      message: 'Tilly has left the building ({{ now().strftime(''%H:%M'')}}) '
+    service: notify.ios_daves_iphone
+- id: '1563488941288'
+  alias: Internet back online
+  trigger:
+  - entity_id: binary_sensor.internet
+    from: Offline
+    platform: state
+    to: Online
+  condition: []
+  action:
+  - data:
+      message: Internet is back online
+    service: notify.ios_daves_iphone
+- id: '1563739681926'
+  alias: living room tv powersave (wip)
+  trigger:
+  - at: '23:30:00'
+    platform: time
+  condition:
+  - condition: state
+    entity_id: media_player.panasonic_viera_tv
+    state: 'off'
+  action:
+  - alias: ''
+    data:
+      entity_id: fan.subfloor
+    service: homeassistant.turn_off
+- id: '1569964376707'
+  alias: Guinea Pigs Cold
+  trigger:
+  - below: '8'
+    entity_id: sensor.mijia2_temperature
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      message: Guinea pigs are cold ({{states.sensor.mijia2_temperature.state}}°C)
+    service: notify.ios_daves_iphone
+- id: '1569996952259'
+  alias: Dimmer test
+  trigger:
+  - entity_id: sensor.ikeadimmer1_brightness
+    platform: state
+  condition: []
+  action:
+  - data_template:
+      brightness: '{{states.sensor.ikeadimmer1_brightness.state | int}}
+
+        '
+      entity_id: light.ikeabulb1_light
+    service: light.turn_on
+- id: '1570267333812'
+  alias: Fridge defrost alarm
+  trigger:
+  - above: '8'
+    entity_id: sensor.mijia1_temperature
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      message: The fridge is warm ({{states.sensor.mijia1_temperature.state}}°C)
+    service: notify.ios_daves_iphone
+- id: '1570376200151'
+  alias: Ginuea Pigs Hot
+  trigger:
+  - above: '30'
+    entity_id: sensor.mijia2_temperature
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      message: Guinea pigs are hot ({{states.sensor.mijia2_temperature.state}}°C)
+    service: notify.ios_daves_iphone
+- id: '1570866686752'
+  alias: Ceiling clock off
+  trigger:
+  - at: '9:00:00'
+    platform: time
+  condition: []
+  action:
+  - device_id: be25790d041d44d78ef21cedf51412ed
+    domain: switch
+    entity_id: switch.ikeaoutlet1_switch
+    type: turn_off
+- id: '1570866742944'
+  alias: Ceiling clock on
+  trigger:
+  - at: '19:00:00'
+    platform: time
+  condition: []
+  action:
+  - device_id: be25790d041d44d78ef21cedf51412ed
+    domain: switch
+    entity_id: switch.ikeaoutlet1_switch
+    type: turn_on
+- id: '1570878583736'
+  alias: Washing delayed start (armed)
+  trigger:
+  - entity_id: switch.salus_socket1_switch
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data:
+      message: Washing auto-on activated.  Waiting for sunrise or 12:00.
+    service: notify.ios_daves_iphone
+- id: '1570878799317'
+  alias: Washing delayed start (triggered)
+  trigger:
+  - above: '1000'
+    entity_id: sensor.solar_pv_power
+    platform: numeric_state
+  - at: '12:00:00'
+    platform: time
+  condition:
+  - condition: device
+    device_id: 507c44bd79b6451d8522be3a7db1edc3
+    domain: switch
+    entity_id: switch.salus_socket1_switch
+    type: is_off
+  action:
+  - device_id: 507c44bd79b6451d8522be3a7db1edc3
+    domain: switch
+    entity_id: switch.salus_socket1_switch
+    type: turn_on
+  - data:
+      message: Washing turned on. (PV={{states('sensor.solar_pv_power')}}W)
+    service: notify.ios_daves_iphone
+- id: '1571679578677'
+  alias: Tell Dave when Phoebe is home
+  trigger:
+  - entity_id: person.phoebe
+    from: not_home
+    platform: state
+    to: home
+  condition: []
+  action:
+  - data:
+      data:
+        attachment:
+          content-type: png
+          hide-thumbnail: 'false'
+          url: http://admin:li2mcapb@192.168.1.10/Streaming/channels/1/picture
+      message: Phoebe is Home
+      title: Attention!
+    service: notify.ios_daves_iphone
+  - data:
+      entity_id: automation.tell_dave_when_phoebe_is_home
+    service: automation.turn_off
+- id: '1572485352209'
+  alias: Dewater subfloor (iOS notification sender)
+  description: Detects when water level is high then sends actionable iOS notification.
+  trigger:
+  - above: '50'
+    entity_id: sensor.sump
+    for: 0:30:00
+    platform: numeric_state
+  - at: '7:00:00'
+    platform: time
+  condition:
+  - after: 07:00:00
+    before: '21:00:00'
+    condition: time
+  - above: '50'
+    condition: numeric_state
+    entity_id: sensor.sump
+  action:
+  - alias: ''
+    data:
+      data:
+        push:
+          category: sumppumpiosaction
+      message: Basement water level high! ({{states('sensor.sump')}}mm)
+    service: notify.ios_daves_iphone
+- id: sumppump2mins
+  alias: Dewater subfloor (iOS notification handler)
+  description: iOS Actionable notification handler.
+  trigger:
+  - event_data:
+      actionName: PUMP_NOW_2MIN
+    event_type: ios.notification_action_fired
+    platform: event
+  action:
+  - data: {}
+    service: script.sump_pump_2mins

@@ -1,0 +1,14 @@
+family:
+  name: Family
+  entities:
+    - person.dave
+    - person.zoe
+    - person.phoebe
+familyandfriends:
+  name: Wider Family & Friends
+  entities:
+    - person.dave
+    - person.zoe
+    - person.phoebe
+    - person.ruth
+

@@ -1,0 +1,32 @@
+sensor.yr_symbol:
+  friendly_name: Weather
+sensor.unnamed_device:
+  friendly_name: Subfloor temperature
+  unit_of_measurement: °C
+binary_sensor.rpi_1_ping:
+  icon: mdi:raspberry-pi
+binary_sensor.rpi_2_ping:
+  icon: mdi:raspberry-pi
+binary_sensor.driveway_cam_ping:
+  icon: mdi:cctv
+binary_sensor.treehouse_cam_ping:
+  icon: mdi:cctv
+binary_sensor.networkspace_ping:
+  icon: mdi:server-network
+binary_sensor.usb_temperhum_sensor:
+  icon: mdi:usb
+binary_sensor.usb_rs485_adaptor:
+  icon: mdi:usb
+binary_sensor.usb_bluetooth_dongle:
+  icon: mdi:usb
+sensor.subfloor_rh:
+  friendly_name: Subfloor RH
+sensor.subfloor_temp:
+  friendly_name: Subfloor Temperature
+  unit_of_measurement: °C
+sensor.sump:
+  friendly_name: Subfloor Water Depth
+sensor.weather_humidity:
+  friendly_name: Weather RH
+fan.subfloor:
+  friendly_name: Subfloor fan

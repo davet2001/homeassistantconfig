@@ -1,0 +1,35 @@
+hello_world_ios_notification:
+  alias: hello world ios notification
+  sequence:
+  - data:
+      message: hello world
+    service: notify.ios_daves_iphone
+driveway_image_ios_notification:
+  alias: Driveway image ios notification (img only works while on wifi)
+  sequence:
+  - data:
+      data:
+        attachment:
+          content-type: png
+          hide-thumbnail: 'false'
+          url: !secret ipcam_driveway_stillimageurl_with_login
+      message: Driveway image
+      title: Alert
+    service: notify.ios_daves_iphone
+sump_pump_2mins:
+  alias: Sump pump 2mins
+  sequence:
+  - data:
+      entity_id: switch.sump_pump
+    service: homeassistant.turn_on
+  - data:
+      message: Started pump. Water level = {{states('sensor.sump')}}mm
+    service: notify.ios_daves_iphone
+  - delay: 0:02:00
+  - data:
+      entity_id: switch.sump_pump
+    service: homeassistant.turn_off
+  - delay: 0:02:00
+  - data:
+      message: Stopped pump. Water level = {{states('sensor.sump')}}mm
+    service: notify.ios_daves_iphone
