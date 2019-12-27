@@ -1,0 +1,48 @@
+- id: '1576103187637'
+  name: Movie Mode
+  entities:
+    light.ikeabulb2_e27_rgb_light:
+      brightness: 1
+      hs_color:
+      - 44.941
+      - 100
+      rgb_color:
+      - 255
+      - 190
+      - 0
+      state: 'on'
+      xy_color:
+      - 0.528
+      - 0.446
+- id: '1576103703302'
+  name: Living room normal
+  entities:
+    light.ikeabulb2_e27_rgb_light:
+      brightness: 238
+      hs_color:
+      - 44.69
+      - 56.863
+      rgb_color:
+      - 255
+      - 218
+      - 109
+      state: 'on'
+      xy_color:
+      - 0.453
+      - 0.432
+- id: '1576194659044'
+  name: Morning
+  entities:
+    switch.ikeasocket3_switch:
+      state: 'on'
+    switch.ikeasoutlet2_switch:
+      state: 'on'
+- id: '1576194805421'
+  name: Night
+  entities:
+    light.ikeabulb1_light:
+      state: 'off'
+    switch.ikeasocket3_switch:
+      state: 'off'
+    switch.ikeasoutlet2_switch:
+      state: 'off'
