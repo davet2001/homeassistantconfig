@@ -62,7 +62,7 @@
   action:
   - data:
       message: 'Tilly has left the building ({{ now().strftime(''%H:%M'')}}) '
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
 - id: '1563488941288'
   alias: Internet back online
   trigger:
@@ -99,20 +99,7 @@
   action:
   - data:
       message: Guinea pigs are cold ({{states.sensor.mijia2_temperature.state}}°C)
-    service: notify.ios_daves_iphone
-- id: '1569996952259'
-  alias: Dimmer test
-  trigger:
-  - entity_id: sensor.ikeadimmer1_brightness
-    platform: state
-  condition: []
-  action:
-  - data_template:
-      brightness: '{{states.sensor.ikeadimmer1_brightness.state | int}}
-
-        '
-      entity_id: light.ikeabulb1_light
-    service: light.turn_on
+    service: notify.mobile_app_daves_iphone
 - id: '1570267333812'
   alias: Fridge defrost alarm
   trigger:
@@ -123,7 +110,7 @@
   action:
   - data:
       message: The fridge is warm ({{states.sensor.mijia1_temperature.state}}°C)
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
 - id: '1570376200151'
   alias: Ginuea Pigs Hot
   trigger:
@@ -134,7 +121,7 @@
   action:
   - data:
       message: Guinea pigs are hot ({{states.sensor.mijia2_temperature.state}}°C)
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
 - id: '1570866686752'
   alias: Ceiling clock off
   trigger:
@@ -168,7 +155,7 @@
   action:
   - data:
       message: Washing auto-on activated.  Waiting for sunrise or 12:00.
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
 - id: '1570878799317'
   alias: Washing delayed start (triggered)
   trigger:
@@ -190,7 +177,7 @@
     type: turn_on
   - data:
       message: Washing turned on. (PV={{states('sensor.solar_pv_power')}}W)
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
 - id: '1571679578677'
   alias: Tell Dave when Phoebe is home
   trigger:
@@ -248,3 +235,218 @@
   action:
   - data: {}
     service: script.sump_pump_2mins
+- id: '1573482251035'
+  alias: Bathroom light auto off
+  description: ''
+  trigger:
+  - event_data:
+      entity_id: timer.bathlighttimertimeout
+    event_type: timer.finished
+    platform: event
+  condition: []
+  action:
+  - alias: ''
+    data:
+      entity_id: light.ikeabulb1_light
+      transition: 10
+    service: light.turn_off
+- id: '1574527776072'
+  alias: Bathroom light auto on
+  description: ''
+  trigger:
+  - device_id: d0b8d66f436941fea0471f08fd97dfb6
+    domain: binary_sensor
+    entity_id: binary_sensor.0x00158d00032611b9_contact
+    platform: device
+    type: opened
+  condition:
+  - condition: state
+    entity_id: binary_sensor.sun_up
+    state: 'off'
+  - condition: device
+    device_id: 3574cee1ea6d43e5b9938712b397f06d
+    domain: light
+    entity_id: light.ikeabulb1_light
+    type: is_off
+  action:
+  - alias: ''
+    data: {}
+    service: script.bathlighton_timedepbrightness
+  - data:
+      entity_id: timer.bathlighttimertimeout
+    service: timer.start
+- id: '1574628132589'
+  alias: Night time (clicked) not working
+  description: ''
+  trigger:
+  - payload: 'click : off'
+    platform: mqtt
+    topic: zigbee2mqtt/ikeadimmer2
+  condition: []
+  action:
+  - data:
+      message: HI
+    service: notify.ios_daves_iphone
+  - scene: scene.night
+- id: '1574666763603'
+  alias: Morning (timed)
+  description: ''
+  trigger:
+  - at: 06:15:00
+    platform: time
+  condition: []
+  action:
+  - scene: scene.morning
+- id: '1574882179106'
+  alias: Detect dishwasher running
+  description: ''
+  trigger:
+  - above: 50
+    device_id: 507c44bd79b6451d8522be3a7db1edc3
+    domain: sensor
+    entity_id: sensor.salus_socket1_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+    platform: device
+    type: value
+  condition:
+  - condition: state
+    entity_id: input_text.dishwasherstatus
+    state: idle
+  action:
+  - data:
+      message: Dishwasher is running
+    service: notify.mobile_app_daves_iphone
+  - data:
+      entity_id: input_text.dishwasherstatus
+      value: running
+    service: input_text.set_value
+- id: '1574882272491'
+  alias: Detect dishwasher finishing
+  description: ''
+  trigger:
+  - below: '50'
+    entity_id: sensor.salus_socket1_power
+    for: 01:05:00
+    platform: numeric_state
+  condition:
+  - condition: state
+    entity_id: input_text.dishwasherstatus
+    state: running
+  action:
+  - data:
+      message: Dishwasher finishing
+    service: notify.mobile_app_daves_iphone
+  - data:
+      entity_id: input_text.dishwasherstatus
+      value: idle
+    service: input_text.set_value
+- id: '1575129808018'
+  alias: Bathroom light stop timer if dimmer adjusted
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/ikeadimmer1
+  condition: []
+  action:
+  - data:
+      entity_id: timer.bathlighttimertimeout
+    service: timer.cancel
+- id: '1575150326795'
+  alias: Welcome home
+  description: ''
+  trigger:
+  - entity_id: group.familyandfriends
+    platform: state
+    to: home
+  condition: []
+  action: []
+- id: '1575929649897'
+  alias: Sun went up
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.sun_up
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - device_id: 6c49b8a0ba69474781aabdbd909f0c7c
+    domain: switch
+    entity_id: switch.ikeasocket3_switch
+    type: turn_off
+- id: '1575929718651'
+  alias: Sun went down
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.sun_up
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - device_id: 6c49b8a0ba69474781aabdbd909f0c7c
+    domain: switch
+    entity_id: switch.ikeasocket3_switch
+    type: turn_on
+- id: '1576311511319'
+  alias: Night time (timed)
+  description: ''
+  trigger:
+  - at: '23:00:00'
+    platform: time
+  condition: []
+  action:
+  - scene: scene.night
+- id: '1576325576925'
+  alias: Warn if door left unlocked
+  description: Actions contain data_template - dont edit actions in lovelace.
+  trigger:
+  - device_id: 1223776de0734c7f9be9e61e5355f45d
+    domain: binary_sensor
+    entity_id: binary_sensor.aqara_door1_contact
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    platform: device
+    type: locked
+  - device_id: 67cf738c76174707bc06441e976c651b
+    domain: binary_sensor
+    entity_id: binary_sensor.0x00158d00043169e4_contact
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    platform: device
+    type: locked
+  - device_id: 7cc77a88ca164c10af3d9438d4593475
+    domain: binary_sensor
+    entity_id: binary_sensor.0x00158d00032611d2_contact
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+    platform: device
+    type: locked
+  condition: []
+  action:
+  - data_template:
+      message: '{{ trigger.from_state.name }} unlocked'
+    service: notify.mobile_app_dave_s_iphone
+- id: '1576617637674'
+  alias: New Automation
+  description: ''
+  trigger:
+  - device_id: 523726bf460a4ea19d5144310e8565b6
+    domain: binary_sensor
+    entity_id: binary_sensor.0x00158d00044d5ee4_contact
+    platform: device
+    type: not_opened
+  condition: []
+  action:
+  - data:
+      message: Door is closed
+    service: persistent_notification.create

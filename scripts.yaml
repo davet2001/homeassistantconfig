@@ -3,7 +3,7 @@ hello_world_ios_notification:
   sequence:
   - data:
       message: hello world
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
 driveway_image_ios_notification:
   alias: Driveway image ios notification (img only works while on wifi)
   sequence:
@@ -15,7 +15,7 @@ driveway_image_ios_notification:
           url: !secret ipcam_driveway_stillimageurl_with_login
       message: Driveway image
       title: Alert
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
 sump_pump_2mins:
   alias: Sump pump 2mins
   sequence:
@@ -32,4 +32,47 @@ sump_pump_2mins:
   - delay: 0:02:00
   - data:
       message: Stopped pump. Water level = {{states('sensor.sump')}}mm
-    service: notify.ios_daves_iphone
+    service: notify.mobile_app_daves_iphone
+bathlighton_timedepbrightness:
+  alias: Bath light turn on (time dependent brightness)
+  sequence:
+  - data_template:
+      brightness: '{% if now().hour > 21 %}1{% elif now().hour > 20 %}20{% elif now().hour
+        < 6 %}1{% else %}100{% endif %}'
+      entity_id: light.ikeabulb1_light
+      transition: 2
+    service: light.turn_on
+lefthome:
+  alias: Left Home
+  sequence: []
+welcomehome:
+  alias: Welcome home
+  sequence:
+  - data:
+      entity_id: light.hall
+    service: light.turn_on
+'1576327994516':
+  alias: Notification test
+  sequence:
+  - data:
+      message: Persistent notification test 1
+    service: persistent_notification.create
+'1576354008668':
+  alias: Night Time
+  sequence:
+  - condition: or
+    conditions:
+    - condition: device
+      device_id: 67cf738c76174707bc06441e976c651b
+      domain: binary_sensor
+      entity_id: binary_sensor.0x00158d00043169e4_contact
+      type: is_locked
+  - data:
+      message: a door is unlocked
+    service: notify.mobile_app_daves_iphone
+'1577465490988':
+  alias: HDMI CEC Test
+  sequence:
+  - alias: ''
+    data: {}
+    service: hdmi_cec.power_on

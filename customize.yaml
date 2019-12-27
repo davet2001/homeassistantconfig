@@ -30,3 +30,15 @@ sensor.weather_humidity:
   friendly_name: Weather RH
 fan.subfloor:
   friendly_name: Subfloor fan
+sensor.catflap:
+  friendly_name: Tilly
+binary_sensor.aqara_door1_contact:
+  device_class: lock
+binary_sensor.0x00158d00043169e4_contact:
+  device_class: lock
+  friendly_name: Side Door
+binary_sensor.0x00158d00032611d2_contact:
+  device_class: lock
+  friendly_name: Garage side door
+binary_sensor.0x00158d00044d5ee4_contact:
+  device_class: lock

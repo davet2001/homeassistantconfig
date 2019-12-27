@@ -1,4 +1,6 @@
 homeassistant: 
+  # Customization file
+  customize: !include customize.yaml
   # Name of the location where Home Assistant is running
   name: Home
  # Location required to calculate the time the sun rises and sets
@@ -10,17 +12,35 @@ homeassistant:
   unit_system: metric
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: Europe/London
-  # Customization file
-  customize: !include customize.yaml
   packages: !include_dir_named packages
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
+config:
+
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # http:
 #   base_url: example.duckdns.org:8123
 
+hdmi_cec:
+  host: 192.168.1.4
+  devices:
+    rpi: 1.0.0.0
+
+input_text:
+  dishwasherstatus:
+    name: Dishwasher Status
+    initial: idle
+    # other options are 'running', and perhaps 'unknown'
+  washingmachinestatus:
+    name: Washing Machine Status
+    initial: idle
+    # other options are 'running', and perhaps 'unknown'
+
+recorder:
+  purge_keep_days: 10
+  purge_interval: 1
 
 #sensor:
 #  - platform: mqtt
@@ -31,6 +51,22 @@ default_config:
 #      {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
 #    # again, if you change base_topic of Zigbee2mqtt, change json_attributes_topic accordingly
 #    json_attributes_topic: zigbee2mqtt/bridge/networkmap/raw
+
+timer:
+  bathlighttimertimeout:
+    duration: '00:20:00'
+
+homekit:
+  filter:
+    include_domains:
+      - sensor
+      - light
+      - fan
+      - switch
+      - climate
+
+# to allow us to use sun elevation etc in scripts.
+sun:
 
 ios:
   push:
@@ -51,17 +87,17 @@ ios:
             destructive: false
             behavior: 'default'
 logger:
-  default: info
+  default: warn
   logs:
 #    homeassistant.components.temper: debug
 #    homeassistant.components.temper.sensor: debug
 #    homeassistant.components.aurora_abb_powerone: debug
 #    homeassistant.components.aurora_abb_powerone.sensor: debug
-#    homeassistant.util.package: debug
+#    homeassistant.util.package: info
 #    homeassistant.components.binary_sensor: debug
 #    homeassistant.components.device_tracker: debug
 
-#    homeassistant.core: debug
+    homeassistant.core: info
 #    homeassistant.components.sensor.command_line: warning
     custom_components: debug
     custom_components.bwio: info
@@ -183,19 +219,17 @@ binary_sensor:
     name: "ADSL router"
     count: 1
   - platform: ping
+    host: 1.1.1.1
+    name: "Internet (IP ping)"
+    count: 1
+  - platform: ping
     host: now.tv
-    name: "Internet"
+    name: "Internet (DNS ping)"
     count: 1
   - platform: ping
     host: !secret hivehub_hostname
     name: "Hive Hub Local Ping"
     count: 1
-#  - platform: command_line
-#    command: 'lsusb | grep TEMPerHUM | wc -l'
-#    name: 'USB TEMPerHUM Sensor'
-#    device_class: connectivity
-#    payload_on: 1
-#    payload_off: 0
   - platform: command_line
     command: 'lsusb | grep "Bluetooth Dongle" | wc -l'
     name: 'USB Bluetooth Dongle'
@@ -229,6 +263,10 @@ binary_sensor:
           {% else %}
             False
           {% endif %}
+      sun_up:
+        friendly_name: "Sun is up"
+        value_template: >-
+          {{ state_attr('sun.sun', 'elevation')| float > 5 }}
 
 light:
   - name: "Hall"
@@ -321,3 +359,4 @@ mqtt:
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
+scene: !include scenes.yaml
